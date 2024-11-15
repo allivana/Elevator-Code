@@ -4,10 +4,20 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class JoeBiden extends SubsystemBase {
+import edu.wpi.first.wpilibj.I2C;
+import com.revrobotics.Rev2mDistanceSensor.Port;
+
+import com.revrobotics.Rev2mDistanceSensor;
+import com.revrobotics.Rev2mDistanceSensor.Port;
+import com.revrobotics.Rev2mDistanceSensor.Unit;
+
+public class Elevator extends SubsystemBase {
     
     // Motors
     private final CANSparkMax motor1;
@@ -17,10 +27,6 @@ public class JoeBiden extends SubsystemBase {
     private final RelativeEncoder encoder;
     private final SparkMaxPIDController pidController;
 
-    // Limit switches
-    private final DigitalInput topLimitSwitch;
-    private final DigitalInput bottomLimitSwitch;
-
     // Constants (modify these based on your elevator design)
     private static final double kElevatorSpeed = 0.5;
     private static final double kP = 0.1;
@@ -29,12 +35,9 @@ public class JoeBiden extends SubsystemBase {
     private static final double kMaxHeight = 100.0; // Example max position
     private static final double kMinHeight = 0.0;
 
-    public ElevatorSubsystem(int motor1Port, int motor2Port, int topLimitSwitchPort, int bottomLimitSwitchPort) {
+    public Elevator(int motor1Port, int motor2Port) {
         motor1 = new CANSparkMax(motor1Port, MotorType.kBrushless);
         motor2 = new CANSparkMax(motor2Port, MotorType.kBrushless);
-        
-        // Set motor 2 to follow motor 1
-        motor2.follow(motor1);
 
         // Encoder and PID controller from motor1
         encoder = motor1.getEncoder();
@@ -44,10 +47,6 @@ public class JoeBiden extends SubsystemBase {
         pidController.setP(kP);
         pidController.setI(kI);
         pidController.setD(kD);
-
-        // Limit switches
-        topLimitSwitch = new DigitalInput(topLimitSwitchPort);
-        bottomLimitSwitch = new DigitalInput(bottomLimitSwitchPort);
     }
 
     // Method to move the elevator to a target height
@@ -61,6 +60,8 @@ public class JoeBiden extends SubsystemBase {
     }
 
     // Method to manually move the elevator up
+
+    /*
     public void moveUp() {
         if (!isAtTopLimit()) {
             motor1.set(kElevatorSpeed);
@@ -70,19 +71,29 @@ public class JoeBiden extends SubsystemBase {
     }
 
     // Method to manually move the elevator down
+
     public void moveDown() {
         if (!isAtBottomLimit()) {
             motor1.set(-kElevatorSpeed);
         } else {
             stop();
         }
-    }
+    } */
 
     // Stops the elevator motor
     public void stop() {
         motor1.set(0);
     }
 
+    public void moveUp() {
+        motor1.set(-kElevatorSpeed);
+    }
+
+    public void moveDown() {
+        motor1.set(kElevatorSpeed);
+    }
+
+    /*
     // Method to check if elevator is at the top limit
     public boolean isAtTopLimit() {
         return !topLimitSwitch.get(); // Returns true if the top limit is reached
@@ -91,18 +102,50 @@ public class JoeBiden extends SubsystemBase {
     // Method to check if elevator is at the bottom limit
     public boolean isAtBottomLimit() {
         return !bottomLimitSwitch.get(); // Returns true if the bottom limit is reached
-    }
+    } */
 
     @Override
     public void periodic() {
         // Display encoder and limit switch states on SmartDashboard
         SmartDashboard.putNumber("Elevator Position", encoder.getPosition());
-        SmartDashboard.putBoolean("At Top Limit", isAtTopLimit());
-        SmartDashboard.putBoolean("At Bottom Limit", isAtBottomLimit());
-
         // Stop the elevator if it reaches a limit switch
-        if (isAtTopLimit() || isAtBottomLimit()) {
-            stop();
-        }
+
+    }
+
+    public boolean exampleCondition() {
+        // Query some boolean state, such as a digital sensor.
+        return false;
+      }
+
+    public boolean buttonReleased() {
+        return false;
+    }
+
+    public Command motorUp() {
+        return runOnce(() -> {
+            motor1.set(0.05);
+            motor2.set(-0.05);
+        });
+    }
+
+    public Command motorDown() {
+        return runOnce(() -> {
+            motor1.set(-0.05);
+            motor2.set(0.05);
+        });
+    }
+
+    public Command motorStopUp() {
+        return runOnce(() -> {
+            motor1.set(0);
+            motor2.set(0);
+        });
+    }
+
+    public Command motorStopDown() {
+        return runOnce(() -> {
+            motor1.set(0);
+            motor2.set(0);
+        });
     }
 }
