@@ -11,11 +11,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj.I2C;
-import com.revrobotics.Rev2mDistanceSensor.Port;
-
-import com.revrobotics.Rev2mDistanceSensor;
-import com.revrobotics.Rev2mDistanceSensor.Port;
-import com.revrobotics.Rev2mDistanceSensor.Unit;
 
 public class Elevator extends SubsystemBase {
     
@@ -123,15 +118,15 @@ public class Elevator extends SubsystemBase {
 
     public Command motorUp() {
         return runOnce(() -> {
-            motor1.set(0.05);
-            motor2.set(-0.05);
+            motor1.set(0.2);
+            motor2.set(-0.2);
         });
     }
 
     public Command motorDown() {
         return runOnce(() -> {
-            motor1.set(-0.05);
-            motor2.set(0.05);
+            motor1.set(-0.2);
+            motor2.set(0.2);
         });
     }
 
