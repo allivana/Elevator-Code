@@ -7,8 +7,10 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ElevatorCommand;
+import frc.robot.subsystems.DistanceSensor;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.commands.ElevatorCommand;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,9 +26,12 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Elevator m_elevator = new Elevator(1, 2);
+  private final DistanceSensor m_distanceSensor = new DistanceSensor();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final ElevatorCommand m_elevatorCommand = new ElevatorCommand(m_elevator, m_distanceSensor);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -47,7 +52,7 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
     new Trigger(m_elevator::exampleCondition)
-        .onTrue(new ElevatorCommand(m_elevator));
+        .onTrue(new ElevatorCommand(m_elevator, m_distanceSensor));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -56,6 +61,9 @@ public class RobotContainer {
 
     m_driverController.a().whileTrue(m_elevator.motorDown());
     m_driverController.a().whileFalse(m_elevator.motorStopDown());
+
+    m_driverController.x().onTrue(m_elevatorCommand);
+    // m_driverController.x().whileFalse(m_elevator.motorStopUp());
   }
 
   /**
