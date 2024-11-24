@@ -14,11 +14,10 @@ public class ElevatorCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   
   private final Elevator m_elevator;
-  private final DistanceSensor m_distanceSensor;
-  private final double targetDistance = 6;
-  private final double motorSpeed = 0.1;
 
+  public DistanceSensor m_distanceSensor;
 
+  private final double targetDistance = 150;
 
   public ElevatorCommand(Elevator subsystem, DistanceSensor subsystem1) {
     m_elevator = subsystem;
@@ -31,13 +30,13 @@ public class ElevatorCommand extends Command {
   @Override
   public void initialize() {
     m_elevator.moveUp();
-    SmartDashboard.putNumber("elevator test", m_distanceSensor.getDistance());
+    m_distanceSensor.getRealRange();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_distanceSensor.getDistance() >= targetDistance) {
+    if (m_distanceSensor.getRealRange() >= targetDistance) {
       m_elevator.stop();
     }
   }
@@ -51,6 +50,6 @@ public class ElevatorCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_distanceSensor.getDistance() >= targetDistance;
+    return m_distanceSensor.getRealRange() >= targetDistance;
   }
 }
